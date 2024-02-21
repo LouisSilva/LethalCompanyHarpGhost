@@ -4,6 +4,8 @@
 
 <p>Dealing with the angry ghost may prove difficult, but it is worth it to obtain the harp.</p>
 
+<p>I uploaded the harp songs to youtube and I did not get copyright striked, so it should be fine. If you are still worried, you can set the</p>
+
 ## Bestiary Info
 
 <details>

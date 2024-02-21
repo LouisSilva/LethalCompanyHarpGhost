@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using BepInEx.Logging;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,8 +6,6 @@ namespace LethalCompanyHarpGhost.HarpGhost;
 
 public class HarpGhostAnimationController : MonoBehaviour
 {
-    private readonly ManualLogSource _mls = BepInEx.Logging.Logger.CreateLogSource("Harp Ghost Animation Controller");
-    
     #pragma warning disable 0649
     [SerializeField] private Animator animator;
     [SerializeField] private HarpGhostNetcodeController netcodeController;
@@ -28,19 +25,19 @@ public class HarpGhostAnimationController : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
-        if (animator == null) _mls.LogError("Animator is null");
+        if (animator == null) HarpGhostPlugin.mls.LogError("Animator is null");
 
         netcodeController = GetComponent<HarpGhostNetcodeController>();
-        if (netcodeController == null) _mls.LogError("netcodeController is null");
+        if (netcodeController == null) HarpGhostPlugin.mls.LogError("netcodeController is null");
 
         audioManager = GetComponent<HarpGhostAudioManager>();
-        if (audioManager == null) _mls.LogError("audioManager is null");
+        if (audioManager == null) HarpGhostPlugin.mls.LogError("audioManager is null");
     }
 
     private void LogDebug(string msg)
     {
         #if DEBUG
-        _mls.LogInfo(msg);
+        HarpGhostPlugin.mls.LogInfo($"Animation Controller : {msg}");
         #endif
     }
 

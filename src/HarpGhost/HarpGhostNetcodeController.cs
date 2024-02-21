@@ -1,5 +1,6 @@
 ﻿using System;
 using BepInEx.Logging;
+using LethalCompanyHarpGhost.Instruments;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -135,7 +136,7 @@ public class HarpGhostNetcodeController : NetworkBehaviour
         AudioSource harpAudioSource = harpObject.GetComponent<AudioSource>();
         if (harpAudioSource == null) _mls.LogError("harpAudioSource is null");
 
-        HarpBehaviour harpBehaviour = harpObject.GetComponent<HarpBehaviour>();
+        InstrumentBehaviour harpBehaviour = harpObject.GetComponent<InstrumentBehaviour>();
         if (harpBehaviour == null) _mls.LogError("harpBehaviour is null");
 
         int harpScrapValue = UnityEngine.Random.Range(HarpGhostConfig.Instance.HarpMinValue.Value, HarpGhostConfig.Instance.HarpMaxValue.Value + 1);

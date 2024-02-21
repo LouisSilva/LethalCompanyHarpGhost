@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BepInEx.Logging;
 using GameNetcodeStuff;
+using LethalCompanyHarpGhost.Instruments;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -748,7 +749,7 @@ public class HarpGhostAIServer : EnemyAI
     // Using getters for encapsulation
     public Vector3 TransformPosition => transform.position;
     public RoundManager RoundManagerInstance => RoundManager.Instance;
-    public HarpBehaviour HeldHarp { get; set; }
+    public InstrumentBehaviour HeldHarp { get; set; }
 }
 
 

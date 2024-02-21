@@ -6,8 +6,6 @@ namespace LethalCompanyHarpGhost.HarpGhost;
 
 public class HarpGhostAudioManager : MonoBehaviour
 {
-    private readonly ManualLogSource _mls = BepInEx.Logging.Logger.CreateLogSource("Harp Ghost Audio Manager");
-    
     #pragma warning disable 0649
     [SerializeField] private AudioSource creatureVoiceSource;
     [SerializeField] private AudioSource creatureSfxSource;
@@ -60,20 +58,20 @@ public class HarpGhostAudioManager : MonoBehaviour
 
     private void Start()
     {
-        if (creatureSfxSource == null) _mls.LogError("creatureSfxSource is null");
-        if (creatureVoiceSource == null) _mls.LogError("creatureVoiceSource is null");
+        if (creatureSfxSource == null) HarpGhostPlugin.mls.LogError("creatureSfxSource is null");
+        if (creatureVoiceSource == null) HarpGhostPlugin.mls.LogError("creatureVoiceSource is null");
         
-        if (damageSfx == null || damageSfx.Length == 0) _mls.LogError("DamageSfx is null or empty");
-        if (laughSfx == null || laughSfx.Length == 0) _mls.LogError("LaughSfx is null or empty");
-        if (stunSfx == null || stunSfx.Length == 0) _mls.LogError("StunSfx is null or empty");
-        if (upsetSfx == null || upsetSfx.Length == 0) _mls.LogError("UpsetSfx is null or empty");
-        if (dieSfx == null) _mls.LogError("DieSfx is null");
+        if (damageSfx == null || damageSfx.Length == 0) HarpGhostPlugin.mls.LogError("DamageSfx is null or empty");
+        if (laughSfx == null || laughSfx.Length == 0) HarpGhostPlugin.mls.LogError("LaughSfx is null or empty");
+        if (stunSfx == null || stunSfx.Length == 0) HarpGhostPlugin.mls.LogError("StunSfx is null or empty");
+        if (upsetSfx == null || upsetSfx.Length == 0) HarpGhostPlugin.mls.LogError("UpsetSfx is null or empty");
+        if (dieSfx == null) HarpGhostPlugin.mls.LogError("DieSfx is null");
     }
     
     private void LogDebug(string msg)
     {
         #if DEBUG
-        _mls.LogInfo(msg);
+        HarpGhostPlugin.mls.LogInfo("Audio Manager : {msg}");
         #endif
     }
 
@@ -121,7 +119,7 @@ public class HarpGhostAudioManager : MonoBehaviour
 
         if (audioClip == null)
         {
-            _mls.LogError($"Harp ghost voice audio clip index '{typeIndex}' and randomNum: '{randomNum}' is null");
+            HarpGhostPlugin.mls.LogError($"Harp ghost voice audio clip index '{typeIndex}' and randomNum: '{randomNum}' is null");
             return;
         }
         

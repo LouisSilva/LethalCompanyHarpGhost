@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BepInEx.Logging;
 using GameNetcodeStuff;
+using LethalCompanyHarpGhost.Instruments;
 using Unity.Netcode;
 using UnityEngine;
 
