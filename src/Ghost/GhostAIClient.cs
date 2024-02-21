@@ -5,18 +5,18 @@ using LethalCompanyHarpGhost.Instruments;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace LethalCompanyHarpGhost.HarpGhost;
+namespace LethalCompanyHarpGhost.Ghost;
 
 [SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
-public class HarpGhostAIClient : MonoBehaviour
+public class GhostAIClient : MonoBehaviour
 {
-    private readonly ManualLogSource _mls = BepInEx.Logging.Logger.CreateLogSource("Harp Ghost AI | Client");
+    private ManualLogSource _mls;
     
     private NetworkObjectReference _harpObjectRef;
 
     private int _harpScrapValue;
 
-    private HarpBehaviour _heldHarp;
+    private InstrumentBehaviour _heldHarp;
 
     private PlayerControllerB _targetPlayer;
     
@@ -27,26 +27,31 @@ public class HarpGhostAIClient : MonoBehaviour
 
     private void OnEnable()
     {
-        HarpGhostNetcodeController.OnDropHarp += HandleDropHarp;
-        HarpGhostNetcodeController.OnSpawnHarp += HandleSpawnHarp;
-        HarpGhostNetcodeController.OnGrabHarp += HandleGrabHarp;
-        HarpGhostNetcodeController.OnPlayHarpMusic += HandleOnPlayHarpMusic;
-        HarpGhostNetcodeController.OnStopHarpMusic += HandleOnStopHarpMusic;
-        HarpGhostNetcodeController.OnChangeTargetPlayer += HandleChangeTargetPlayer;
-        HarpGhostNetcodeController.OnDamageTargetPlayer += HandleDamageTargetPlayer;
-        HarpGhostNetcodeController.OnIncreaseTargetPlayerFearLevel += HandleIncreaseTargetPlayerFearLevel;
+        GhostNetcodeController.OnDropHarp += HandleDropHarp;
+        GhostNetcodeController.OnSpawnHarp += HandleSpawnHarp;
+        GhostNetcodeController.OnGrabHarp += HandleGrabHarp;
+        GhostNetcodeController.OnPlayHarpMusic += HandleOnPlayHarpMusic;
+        GhostNetcodeController.OnStopHarpMusic += HandleOnStopHarpMusic;
+        GhostNetcodeController.OnChangeTargetPlayer += HandleChangeTargetPlayer;
+        GhostNetcodeController.OnDamageTargetPlayer += HandleDamageTargetPlayer;
+        GhostNetcodeController.OnIncreaseTargetPlayerFearLevel += HandleIncreaseTargetPlayerFearLevel;
     }
 
     private void OnDestroy()
     {
-        HarpGhostNetcodeController.OnDropHarp -= HandleDropHarp;
-        HarpGhostNetcodeController.OnSpawnHarp -= HandleSpawnHarp;
-        HarpGhostNetcodeController.OnGrabHarp -= HandleGrabHarp;
-        HarpGhostNetcodeController.OnPlayHarpMusic -= HandleOnPlayHarpMusic;
-        HarpGhostNetcodeController.OnStopHarpMusic -= HandleOnStopHarpMusic;
-        HarpGhostNetcodeController.OnChangeTargetPlayer -= HandleChangeTargetPlayer;
-        HarpGhostNetcodeController.OnDamageTargetPlayer -= HandleDamageTargetPlayer;
-        HarpGhostNetcodeController.OnIncreaseTargetPlayerFearLevel -= HandleIncreaseTargetPlayerFearLevel;
+        GhostNetcodeController.OnDropHarp -= HandleDropHarp;
+        GhostNetcodeController.OnSpawnHarp -= HandleSpawnHarp;
+        GhostNetcodeController.OnGrabHarp -= HandleGrabHarp;
+        GhostNetcodeController.OnPlayHarpMusic -= HandleOnPlayHarpMusic;
+        GhostNetcodeController.OnStopHarpMusic -= HandleOnStopHarpMusic;
+        GhostNetcodeController.OnChangeTargetPlayer -= HandleChangeTargetPlayer;
+        GhostNetcodeController.OnDamageTargetPlayer -= HandleDamageTargetPlayer;
+        GhostNetcodeController.OnIncreaseTargetPlayerFearLevel -= HandleIncreaseTargetPlayerFearLevel;
+    }
+
+    private void Start()
+    {
+        _mls = BepInEx.Logging.Logger.CreateLogSource($"{HarpGhostPlugin.ModGuid} | Ghost AI | Client");
     }
 
     private void LogDebug(string msg)
@@ -120,7 +125,7 @@ public class HarpGhostAIClient : MonoBehaviour
     {
         if (_heldHarp != null) return;
         if (!_harpObjectRef.TryGet(out NetworkObject networkObject)) return;
-        _heldHarp = networkObject.gameObject.GetComponent<HarpBehaviour>();
+        _heldHarp = networkObject.gameObject.GetComponent<InstrumentBehaviour>();
 
         _heldHarp.SetScrapValue(_harpScrapValue);
         _heldHarp.parentObject = grabTarget;

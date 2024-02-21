@@ -54,7 +54,7 @@ public class InstrumentBehaviour : PhysicsProp
 
     public void Awake()
     {
-        _mls = BepInEx.Logging.Logger.CreateLogSource($"{HarpGhostPlugin.ModGuid} | {instrumentName}");
+        _mls = BepInEx.Logging.Logger.CreateLogSource($"{HarpGhostPlugin.ModGuid} | {instrumentName} Behaviour");
         playerInstrumentOffset = new ItemOffset(positionOffset:new Vector3(-0.8f, 0.22f, 0.07f), rotationOffset:new Vector3(3, 12, -100));
         enemyInstrumentOffset = new ItemOffset(positionOffset:new Vector3(0, -0.6f, 0.6f));
         _isPlayingMusic = false;
@@ -137,7 +137,7 @@ public class InstrumentBehaviour : PhysicsProp
     {
         instrumentAudioSource.clip = instrumentsAudioClips[UnityEngine.Random.Range(0, instrumentsAudioClips.Count)];
         instrumentAudioSource.pitch = 1f;
-        instrumentAudioSource.volume = Mathf.Clamp(HarpGhostConfig.Default.InstrumentMusicVolume.Value, 0f, 1f);
+        instrumentAudioSource.volume = Mathf.Clamp(GhostConfig.Default.InstrumentVolume.Value, 0f, 1f);
         instrumentAudioSource.Play();
         WalkieTalkie.TransmitOneShotAudio(instrumentAudioSource, instrumentAudioSource.clip, instrumentAudioSource.volume);
         _isPlayingMusic = true;

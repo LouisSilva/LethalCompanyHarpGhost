@@ -14,7 +14,6 @@ using Unity.Netcode;
 using static LethalLib.Modules.Levels;
 using static LethalLib.Modules.Enemies;
 using static LethalLib.Modules.Items;
-using LogLevel = BepInEx.Logging.LogLevel;
 using NetworkPrefabs = LethalLib.Modules.NetworkPrefabs;
 
 namespace LethalCompanyHarpGhost
@@ -28,15 +27,17 @@ namespace LethalCompanyHarpGhost
 
         private readonly Harmony _harmony = new Harmony(ModGuid);
 
+        // ReSharper disable once InconsistentNaming
         private static readonly ManualLogSource _mls = BepInEx.Logging.Logger.CreateLogSource(ModGuid);
 
         private static HarpGhostPlugin _instance;
 
-        public static HarpGhostConfig HarpGhostConfig { get; internal set; }
+        public static GhostConfig GhostConfig { get; internal set; }
 
-        private static EnemyType _harpGhostEnemyType;
+        private static EnemyType _ghostEnemyType;
 
         public static Item HarpItem;
+        public static Item KeyboardItem;
 
         private void Awake()
         {
@@ -50,9 +51,9 @@ namespace LethalCompanyHarpGhost
             }
 
             _harmony.PatchAll();
-            HarpGhostConfig = new HarpGhostConfig(Config);
+            GhostConfig = new GhostConfig(Config);
 
-            SetupHarpGhost();
+            SetupGhost();
             SetupHarp();
 
             var types = Assembly.GetExecutingAssembly().GetTypes();
@@ -73,25 +74,25 @@ namespace LethalCompanyHarpGhost
             _mls.LogInfo($"Plugin {ModName} is loaded!");
         }
 
-        private static void SetupHarpGhost()
+        private static void SetupGhost()
         {
-            _harpGhostEnemyType = Assets.MainAssetBundle.LoadAsset<EnemyType>("HarpGhost");
-            _harpGhostEnemyType.canDie = HarpGhostConfig.Instance.GhostIsKillable.Value;
-            _harpGhostEnemyType.PowerLevel = HarpGhostConfig.Instance.GhostPowerLevel.Value;
-            _harpGhostEnemyType.canBeStunned = HarpGhostConfig.Instance.GhostIsStunnable.Value;
-            _harpGhostEnemyType.MaxCount = HarpGhostConfig.Instance.MaxAmountOfGhosts.Value;
-            _harpGhostEnemyType.stunTimeMultiplier = HarpGhostConfig.Instance.GhostStunTimeMultiplier.Value;
-            _harpGhostEnemyType.stunGameDifficultyMultiplier =
-                HarpGhostConfig.Instance.GhostStunGameDifficultyMultiplier.Value;
-            _harpGhostEnemyType.canSeeThroughFog = HarpGhostConfig.Instance.GhostCanSeeThroughFog.Value;
+            _ghostEnemyType = Assets.MainAssetBundle.LoadAsset<EnemyType>("HarpGhost");
+            _ghostEnemyType.canDie = GhostConfig.Instance.GhostIsKillable.Value;
+            _ghostEnemyType.PowerLevel = GhostConfig.Instance.GhostPowerLevel.Value;
+            _ghostEnemyType.canBeStunned = GhostConfig.Instance.GhostIsStunnable.Value;
+            _ghostEnemyType.MaxCount = GhostConfig.Instance.MaxAmountOfGhosts.Value;
+            _ghostEnemyType.stunTimeMultiplier = GhostConfig.Instance.GhostStunTimeMultiplier.Value;
+            _ghostEnemyType.stunGameDifficultyMultiplier =
+                GhostConfig.Instance.GhostStunGameDifficultyMultiplier.Value;
+            _ghostEnemyType.canSeeThroughFog = GhostConfig.Instance.GhostCanSeeThroughFog.Value;
 
             TerminalNode harpGhostTerminalNode = Assets.MainAssetBundle.LoadAsset<TerminalNode>("HarpGhostTN");
             TerminalKeyword harpGhostTerminalKeyword = Assets.MainAssetBundle.LoadAsset<TerminalKeyword>("HarpGhostTK");
 
-            NetworkPrefabs.RegisterNetworkPrefab(_harpGhostEnemyType.enemyPrefab);
-            Utilities.FixMixerGroups(_harpGhostEnemyType.enemyPrefab);
-            RegisterEnemy(_harpGhostEnemyType, Mathf.Clamp(HarpGhostConfig.Instance.GhostSpawnRate.Value, 0, 100),
-                HarpGhostConfig.Instance.GhostSpawnLevel.Value, SpawnType.Default, harpGhostTerminalNode,
+            NetworkPrefabs.RegisterNetworkPrefab(_ghostEnemyType.enemyPrefab);
+            Utilities.FixMixerGroups(_ghostEnemyType.enemyPrefab);
+            RegisterEnemy(_ghostEnemyType, Mathf.Clamp(GhostConfig.Instance.GhostSpawnRate.Value, 0, 100),
+                GhostConfig.Instance.GhostSpawnLevel.Value, SpawnType.Default, harpGhostTerminalNode,
                 harpGhostTerminalKeyword);
 
             // RegisterEnemy(HarpGhostEnemyType, SpawnType.Default, new Dictionary<LevelTypes, int>{
@@ -119,11 +120,9 @@ namespace LethalCompanyHarpGhost
             Utilities.FixMixerGroups(HarpItem.spawnPrefab);
             RegisterScrap(HarpItem, 0, LevelTypes.All);
         }
-
-        // A class for adding a prefix to every log call containing the class name its called from
     }
 
-    public class HarpGhostConfig : SyncedInstance<HarpGhostConfig>
+    public class GhostConfig : SyncedInstance<GhostConfig>
     {
         public readonly ConfigEntry<int> GhostInitialHealth;
         public readonly ConfigEntry<int> GhostAttackDamage;
@@ -139,7 +138,7 @@ namespace LethalCompanyHarpGhost
         public readonly ConfigEntry<float> GhostMaxSearchRadius;
 
         public readonly ConfigEntry<float> GhostVoiceSfxVolume;
-        public readonly ConfigEntry<float> InstrumentMusicVolume;
+        public readonly ConfigEntry<float> InstrumentVolume;
 
         public readonly ConfigEntry<int> GhostSpawnRate;
         public readonly ConfigEntry<int> MaxAmountOfGhosts;
@@ -149,7 +148,7 @@ namespace LethalCompanyHarpGhost
         public readonly ConfigEntry<int> HarpMinValue;
         public readonly ConfigEntry<int> HarpMaxValue;
 
-        public HarpGhostConfig(ConfigFile cfg)
+        public GhostConfig(ConfigFile cfg)
         {
             InitInstance(this);
             
@@ -244,7 +243,7 @@ namespace LethalCompanyHarpGhost
                 "The volume of the ghost's voice. Values are from 0-1"
             );
 
-            InstrumentMusicVolume = cfg.Bind(
+            InstrumentVolume = cfg.Bind(
                 "Audio",
                 "Harp Music Volume",
                 1f,

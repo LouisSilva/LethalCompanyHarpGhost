@@ -1,15 +1,18 @@
 ﻿using System.Collections;
+using BepInEx.Logging;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace LethalCompanyHarpGhost.HarpGhost;
+namespace LethalCompanyHarpGhost.Ghost;
 
-public class HarpGhostAnimationController : MonoBehaviour
+public class GhostAnimationController : MonoBehaviour
 {
+    private ManualLogSource _mls;
+    
     #pragma warning disable 0649
     [SerializeField] private Animator animator;
-    [SerializeField] private HarpGhostNetcodeController netcodeController;
-    [SerializeField] private HarpGhostAudioManager audioManager;
+    [SerializeField] private GhostNetcodeController netcodeController;
+    [SerializeField] private GhostAudioManager audioManager;
     #pragma warning restore 0649
     
     public static readonly int IsRunning = Animator.StringToHash("isRunning");
@@ -24,20 +27,22 @@ public class HarpGhostAnimationController : MonoBehaviour
 
     private void Start()
     {
+        _mls = BepInEx.Logging.Logger.CreateLogSource($"{HarpGhostPlugin.ModGuid} | Animation Controller");
+        
         animator = GetComponent<Animator>();
-        if (animator == null) HarpGhostPlugin.mls.LogError("Animator is null");
+        if (animator == null) _mls.LogError("Animator is null");
 
-        netcodeController = GetComponent<HarpGhostNetcodeController>();
-        if (netcodeController == null) HarpGhostPlugin.mls.LogError("netcodeController is null");
+        netcodeController = GetComponent<GhostNetcodeController>();
+        if (netcodeController == null) _mls.LogError("netcodeController is null");
 
-        audioManager = GetComponent<HarpGhostAudioManager>();
-        if (audioManager == null) HarpGhostPlugin.mls.LogError("audioManager is null");
+        audioManager = GetComponent<GhostAudioManager>();
+        if (audioManager == null) _mls.LogError("audioManager is null");
     }
 
     private void LogDebug(string msg)
     {
         #if DEBUG
-        HarpGhostPlugin.mls.LogInfo($"Animation Controller : {msg}");
+        _mls.LogInfo($"Animation Controller : {msg}");
         #endif
     }
 
@@ -45,8 +50,8 @@ public class HarpGhostAnimationController : MonoBehaviour
     {
         netcodeController.OnDoAnimation += SetTrigger;
         netcodeController.OnChangeAnimationParameterBool += SetBool;
-        HarpGhostNetcodeController.OnEnterDeathState += HandleOnEnterDeathState;
-        HarpGhostNetcodeController.OnInitializeConfigValues += HandleInitializeConfigValues;
+        GhostNetcodeController.OnEnterDeathState += HandleOnEnterDeathState;
+        GhostNetcodeController.OnInitializeConfigValues += HandleInitializeConfigValues;
     }
 
     private void OnDestroy()
@@ -54,8 +59,8 @@ public class HarpGhostAnimationController : MonoBehaviour
         if (netcodeController == null) return;
         netcodeController.OnDoAnimation -= SetTrigger;
         netcodeController.OnChangeAnimationParameterBool -= SetBool;
-        HarpGhostNetcodeController.OnEnterDeathState -= HandleOnEnterDeathState;
-        HarpGhostNetcodeController.OnInitializeConfigValues -= HandleInitializeConfigValues;
+        GhostNetcodeController.OnEnterDeathState -= HandleOnEnterDeathState;
+        GhostNetcodeController.OnInitializeConfigValues -= HandleInitializeConfigValues;
     }
 
     private void HandleOnEnterDeathState()
@@ -69,7 +74,7 @@ public class HarpGhostAnimationController : MonoBehaviour
 
     private void HandleInitializeConfigValues()
     {
-        attackDamage = HarpGhostConfig.Instance.GhostAttackDamage.Value;
+        attackDamage = GhostConfig.Instance.GhostAttackDamage.Value;
     }
 
     private void SetBool(int parameter, bool value)
@@ -102,7 +107,7 @@ public class HarpGhostAnimationController : MonoBehaviour
         if (!NetworkManager.Singleton.IsClient || !netcodeController.IsOwner) return;
         
         netcodeController.ChangeAgentMaxSpeedServerRpc(0f, 0f); // Ghost is frozen while doing the second attack anim
-        netcodeController.PlayCreatureVoiceClientRpc((int)HarpGhostAudioManager.AudioClipTypes.Laugh, audioManager.laughSfx.Length);
+        netcodeController.PlayCreatureVoiceClientRpc((int)GhostAudioManager.AudioClipTypes.Laugh, audioManager.laughSfx.Length);
         LogDebug("OnAnimationEventAttackShiftComplete() called");
         StartCoroutine(DamageTargetPlayerAfterDelay(0.05f, attackDamage, CauseOfDeath.Strangulation));
     }

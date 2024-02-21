@@ -4,15 +4,15 @@ using LethalCompanyHarpGhost.Instruments;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace LethalCompanyHarpGhost.HarpGhost;
+namespace LethalCompanyHarpGhost.Ghost;
 
-public class HarpGhostNetcodeController : NetworkBehaviour
+public class GhostNetcodeController : NetworkBehaviour
 {
     #pragma warning disable 0649
-    [SerializeField] private HarpGhostAIServer harpGhostAIServer;
+    [SerializeField] private GhostAIServer harpGhostAIServer;
     #pragma warning restore 0649
 
-    private readonly ManualLogSource _mls = BepInEx.Logging.Logger.CreateLogSource("Harp Ghost Netcode Controller");
+    private ManualLogSource _mls;
     
     public event Action<int> OnDoAnimation;
     public event Action<int, bool> OnChangeAnimationParameterBool;
@@ -32,7 +32,9 @@ public class HarpGhostNetcodeController : NetworkBehaviour
 
     private void Start()
     {
-        harpGhostAIServer = GetComponent<HarpGhostAIServer>();
+        _mls = BepInEx.Logging.Logger.CreateLogSource($"{HarpGhostPlugin.ModGuid} | Netcode Controller");
+        
+        harpGhostAIServer = GetComponent<GhostAIServer>();
         if (harpGhostAIServer == null) _mls.LogError("harpGhostAI is null");
     }
 
@@ -139,7 +141,7 @@ public class HarpGhostNetcodeController : NetworkBehaviour
         InstrumentBehaviour harpBehaviour = harpObject.GetComponent<InstrumentBehaviour>();
         if (harpBehaviour == null) _mls.LogError("harpBehaviour is null");
 
-        int harpScrapValue = UnityEngine.Random.Range(HarpGhostConfig.Instance.HarpMinValue.Value, HarpGhostConfig.Instance.HarpMaxValue.Value + 1);
+        int harpScrapValue = UnityEngine.Random.Range(GhostConfig.Instance.HarpMinValue.Value, GhostConfig.Instance.HarpMaxValue.Value + 1);
         harpObject.GetComponent<GrabbableObject>().fallTime = 0f;
         harpObject.GetComponent<GrabbableObject>().SetScrapValue(harpScrapValue);
         harpGhostAIServer.RoundManagerInstance.totalScrapValueInLevel += harpScrapValue;
